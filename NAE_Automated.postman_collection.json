@@ -1,0 +1,533 @@
+{
+	"info": {
+		"_postman_id": "568a8b0e-a3fd-4810-a9d2-dc87d905b13f",
+		"name": "NAE_Automated_Login",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "NAE WHOAMI",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "874be4cc-0d12-46fc-b727-73be083bad22",
+						"exec": [
+							"var header = postman.getResponseHeader(\"X-NAE-LOGIN-OTP\");",
+							"postman.setEnvironmentVariable(\"X-NAE-LOGIN-OTP\", header)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{nae_ip}}/api/v1/whoami",
+					"protocol": "https",
+					"host": [
+						"{{nae_ip}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"whoami"
+					]
+				},
+				"description": "WhoAmI request for CNAE"
+			},
+			"response": []
+		},
+		{
+			"name": "NAE LOGIN",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "54df28dc-4776-4957-a07b-941054871712",
+						"exec": [
+							"var csrf = postman.getResponseHeader(\"X-NAE-CSRF-TOKEN\");",
+							"postman.setEnvironmentVariable(\"X-NAE-CSRF-TOKEN\", csrf);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-NAE-LOGIN-OTP",
+						"value": "{{X-NAE-LOGIN-OTP}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"{{username}}\",\n\t\"password\": \"{{password}}\"\n}"
+				},
+				"url": {
+					"raw": "https://{{nae_ip}}/api/v1/login",
+					"protocol": "https",
+					"host": [
+						"{{nae_ip}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"login"
+					]
+				},
+				"description": "Login request for CNAE"
+			},
+			"response": []
+		},
+		{
+			"name": "NAE Get All Fabrics",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "53324364-90ea-44f3-99b6-892fe922784c",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"var data = jsonData.value.data;",
+							"",
+							"",
+							"pm.test(\"We are currently actively assuring a Fabric\", function () {",
+							"    var running = 0;",
+							"    var dataLen = data.length;",
+							"    for (var i=0; i<dataLen; i++) {",
+							"        fabric = data[i];",
+							"        if (fabric.status == \"RUNNING\") {",
+							"            running = 1;",
+							"            console.log(fabric.uuid)",
+							"            postman.setEnvironmentVariable(\"RUNNING-FABRIC\", fabric.uuid);",
+							"        }",
+							"    }",
+							"    pm.expect(running).to.eql(1);",
+							"});",
+							"",
+							"",
+							"// // example using pm.response.to.be*",
+							"// pm.test(\"response must be valid and have a body\", function () {",
+							"//      // assert that the status code is 200",
+							"//      pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+							"//      // assert that the response has a valid JSON body",
+							"//      pm.response.to.be.withBody;",
+							"//      pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+							"// });",
+							"",
+							"// pm.test(responseBody, function() {",
+							"//     pm.response.to.be.withBody;",
+							"//     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+							"// });",
+							"",
+							"// pm.test(JSON.stringify(data[1].status), function () {",
+							"//     var running = 0;",
+							"//     // console.log(jsonData)",
+							"//     var fabric = data[1]",
+							"//     // pm.expect(fabric.status) == \"RUNNING\";",
+							"//     if (fabric.status == \"RUNNING\") {",
+							"//         running = 1;",
+							"//         postman.setEnvironmentVariable(\"RUNNING-FABRIC\", fabric.uuid);",
+							"//     }",
+							"//     pm.expect(running).to.eql(1)",
+							"// });",
+							"",
+							"// var jsonData = JSON.parse(responseBody);",
+							"// for (var fabric in jsonData['value']['data']) {",
+							"//     console.log(fabric['status'])",
+							"//     if (fabric['status'] == 'RUNNING'){",
+							"        ",
+							"//     }",
+							"// }"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-NAE-CSRF-TOKEN",
+						"value": "{{X-NAE-CSRF-TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{nae_ip}}/api/v1/assured-networks/aci-fabric",
+					"protocol": "https",
+					"host": [
+						"{{nae_ip}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"assured-networks",
+						"aci-fabric"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "NAE Get currently actively monitored Fabric",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c403b582-2638-4750-b0f1-3526a64fe186",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-NAE-CSRF-TOKEN",
+						"value": "{{X-NAE-CSRF-TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{nae_ip}}/api/v1/assured-networks/aci-fabric/{{RUNNING-FABRIC}}",
+					"protocol": "https",
+					"host": [
+						"{{nae_ip}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"assured-networks",
+						"aci-fabric",
+						"{{RUNNING-FABRIC}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "NAE Get Latest Epoch on actively monitored Fabric",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6e41f080-3632-43d4-9d68-c7fa4c3094c8",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"var data = jsonData.value.data;",
+							"",
+							"",
+							"pm.test(\"Get the latest epoch for actively monitored fabric\", function () {",
+							"",
+							"    epoch = data[0];",
+							"    postman.setEnvironmentVariable(\"LATEST_EPOCH\", epoch.epoch_id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-NAE-CSRF-TOKEN",
+						"value": "{{X-NAE-CSRF-TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{nae_ip}}/api/v1/event-services/assured-networks/{{RUNNING-FABRIC}}/epochs?$size=1",
+					"protocol": "https",
+					"host": [
+						"{{nae_ip}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"event-services",
+						"assured-networks",
+						"{{RUNNING-FABRIC}}",
+						"epochs"
+					],
+					"query": [
+						{
+							"key": "$size",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Epochs By Event Id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6e41f080-3632-43d4-9d68-c7fa4c3094c8",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"var data = jsonData.value.data;",
+							"",
+							"",
+							"pm.test(\"Get the latest epoch for actively monitored fabric\", function () {",
+							"",
+							"    epoch = data[0];",
+							"    postman.setEnvironmentVariable(\"LATEST_EPOCH\", epoch.epoch_id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-NAE-CSRF-TOKEN",
+						"value": "{{X-NAE-CSRF-TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{nae_ip}}/api/v1/assured-networks/{{RUNNING-FABRIC}}/epochs?$event_id=",
+					"protocol": "https",
+					"host": [
+						"{{nae_ip}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"assured-networks",
+						"{{RUNNING-FABRIC}}",
+						"epochs"
+					],
+					"query": [
+						{
+							"key": "$event_id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "NAE Get events for latest epoch",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-NAE-CSRF-TOKEN",
+						"value": "{{X-NAE-CSRF-TOKEN}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{nae_ip}}/api/v1/assured-networks/{{RUNNING-FABRIC}}/smart-events?$epoch_id={{LATEST_EPOCH}}",
+					"protocol": "https",
+					"host": [
+						"{{nae_ip}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"assured-networks",
+						"{{RUNNING-FABRIC}}",
+						"smart-events"
+					],
+					"query": [
+						{
+							"key": "$epoch_id",
+							"value": "{{LATEST_EPOCH}}"
+						},
+						{
+							"key": "category_name",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "sub_category",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CNAE CREATE USER",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3c83c869-f7e8-4db4-8855-0a07a39088ff",
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.not.be.error;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-NAE-CSRF-TOKEN",
+						"value": "{{X-NAE-CSRF-TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"system_object\": false,\n    \"email\": \"user1@test.com\",\n    \"username\": \"user1\",\n    \"password\": \"cisco123\",\n    \"confirm_password\": \"cisco123\"\n}"
+				},
+				"url": {
+					"raw": "https://{{nae_ip}}/api/v1/config-services/users",
+					"protocol": "https",
+					"host": [
+						"{{nae_ip}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"config-services",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "NAE Get all users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3c83c869-f7e8-4db4-8855-0a07a39088ff",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-NAE-CSRF-TOKEN",
+						"value": "{{X-NAE-CSRF-TOKEN}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://{{nae_ip}}/api/v1/users",
+					"protocol": "https",
+					"host": [
+						"{{nae_ip}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"users"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
